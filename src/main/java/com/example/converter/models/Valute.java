@@ -9,16 +9,16 @@ public class Valute {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long pk;
     private String idValute;
-    private short numCode;
+    private String numCode;
     private String charCode;
     private int nominal;
     private String name;
-    private double value;
+    private float value;
 
     public Valute() {
     }
 
-    public Valute(String idValute, short numCode, String charCode, int nominal, String name, double value) {
+    public Valute(String idValute, String numCode, String charCode, int nominal, String name, float value) {
         this.idValute = idValute;
         this.numCode = numCode;
         this.charCode = charCode;
@@ -27,13 +27,11 @@ public class Valute {
         this.value = value;
     }
 
-
-    public Valute(short numCode, String charCode, int nominal, String name, double value) {
+    public Valute(String numCode, String charCode, int nominal, String name) {
         this.numCode = numCode;
         this.charCode = charCode;
         this.nominal = nominal;
         this.name = name;
-        this.value = value;
     }
 
     public String getIdValute() {
@@ -44,11 +42,11 @@ public class Valute {
         this.idValute = idValute;
     }
 
-    public short getNumCode() {
+    public String getNumCode() {
         return numCode;
     }
 
-    public void setNumCode(short numCode) {
+    public void setNumCode(String numCode) {
         this.numCode = numCode;
     }
 
@@ -76,11 +74,11 @@ public class Valute {
         this.name = name;
     }
 
-    public double getValue() {
+    public float getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(float value) {
         this.value = value;
     }
 }

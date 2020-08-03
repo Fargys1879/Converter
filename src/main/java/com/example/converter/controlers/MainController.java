@@ -75,15 +75,16 @@ public class MainController {
         parser.parse(new File("F:/new.xml"), handler);
 
         for (Valute valute : listValutes)
-            System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
+            //System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
+            valuteRepository.save(valute);
         ////////////////////////////////////////////////////////////
 
 
 
-        Valute kro = new Valute("R01770",(short) 752,"SEK",10,"Шведских крон", 83.6039f);
-        Valute rub = new Valute("R07777",(short) 777,"RUB",1,"Рубль", 1.00f);
-        valuteRepository.save(kro);
-        valuteRepository.save(rub);
+        //Valute kro = new Valute("R01770",(short) 752,"SEK",10,"Шведских крон", 83.6039f);
+        //Valute rub = new Valute("R07777",(short) 777,"RUB",1,"Рубль", 1.00f);
+        //valuteRepository.save(kro);
+        //valuteRepository.save(rub);
         List<String> list = new ArrayList<>();
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
@@ -142,7 +143,7 @@ public class MainController {
         return "redirect:/home";
     }
     private static class AdvancedXMLHandler extends DefaultHandler {
-        private String numCode, charCode, nominal, name, value, lastElementName;
+        private String id, numCode, charCode, nominal, name, value, lastElementName;
 
         @Override
         public void startElement(String uri, String localName, String qName,
@@ -157,6 +158,8 @@ public class MainController {
             information = information.replace("\n", "").trim();
 
             if (!information.isEmpty()) {
+                if (lastElementName.equals("Valute ID"))
+                    id = information;
                 if (lastElementName.equals("NumCode"))
                     numCode = information;
                 if (lastElementName.equals("CharCode"))
@@ -178,7 +181,8 @@ public class MainController {
                     (name != null && !name.isEmpty())&&
                     (value != null && !value.isEmpty()) )
                     {
-                listValutes.add(new Valute(Short.parseShort(numCode), charCode, Integer.parseInt(nominal), name, Double.parseDouble(value)));
+                listValutes.add(new Valute(numCode, charCode, Integer.parseInt(nominal), name ));
+                id = null;
                 numCode = null;
                 charCode = null;
                 nominal = null;
