@@ -34,6 +34,14 @@ public class Valute {
         this.name = name;
     }
 
+    public Valute(String idValute, String numCode, String charCode, int nominal, String name) {
+        this.idValute = idValute;
+        this.numCode = numCode;
+        this.charCode = charCode;
+        this.nominal = nominal;
+        this.name = name;
+    }
+
     public String getIdValute() {
         return idValute;
     }

@@ -22,6 +22,9 @@ import javax.xml.parsers.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.text.*;
+import java.util.regex.Pattern;
+
 
 @Controller
 public class MainController {
@@ -181,7 +184,12 @@ public class MainController {
                     (name != null && !name.isEmpty())&&
                     (value != null && !value.isEmpty()) )
                     {
-                listValutes.add(new Valute(numCode, charCode, Integer.parseInt(nominal), name ));
+
+                String[] values = customFormat(value);
+                for(String val : values) {
+                    System.out.println(val);
+                }
+                listValutes.add(new Valute(id, numCode, charCode, Integer.parseInt(nominal), name  ));
                 id = null;
                 numCode = null;
                 charCode = null;
@@ -189,6 +197,12 @@ public class MainController {
                 name = null;
                 value = null;
             }
+        }
+        //Разбивка значение Value из XML на целые числа и после запятой
+        static public String[] customFormat(String value) {
+            Pattern pattern = Pattern.compile(",");
+            String[] result = pattern.split(value);
+            return result;
         }
     }
 
