@@ -146,7 +146,7 @@ public class MainController {
         return "redirect:/home";
     }
     private static class AdvancedXMLHandler extends DefaultHandler {
-        private String id, numCode, charCode, nominal, name, value, lastElementName;
+        private String id, numCode, charCode, nominal, name, valuestr, lastElementName;
 
         @Override
         public void startElement(String uri, String localName, String qName,
@@ -172,30 +172,36 @@ public class MainController {
                 if (lastElementName.equals("Name"))
                     name = information;
                 if (lastElementName.equals("Value"))
-                    value = information;
+                    valuestr = information;
             }
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
+
             if ( (charCode != null && !charCode.isEmpty())&&
                     (numCode != null && !numCode.isEmpty())&&
                     (nominal != null && !nominal.isEmpty())&&
-                    (name != null && !name.isEmpty())&&
-                    (value != null && !value.isEmpty()) )
-                    {
-
-                String[] values = customFormat(value);
-                for(String val : values) {
-                    System.out.println(val);
+                    (valuestr != null && !valuestr.isEmpty())&&
+                    (name != null && !name.isEmpty())) {
+                String[] values = customFormat(valuestr);
+                float value = 0;
+                for (int i = 0; i < values.length; i++) {
+                    if (i == 0) {
+                        value += Float.parseFloat(values[i]);
+                    } else {
+                        float tmp = (  Integer.parseInt(values[i]) * (float) 0.0001);
+                        value += tmp ; }
                 }
-                listValutes.add(new Valute(id, numCode, charCode, Integer.parseInt(nominal), name  ));
+                System.out.println(value);
+
+                listValutes.add(new Valute(id, numCode, charCode, Integer.parseInt(nominal), name, value ));
                 id = null;
                 numCode = null;
                 charCode = null;
                 nominal = null;
                 name = null;
-                value = null;
+                valuestr = null;
             }
         }
         //Разбивка значение Value из XML на целые числа и после запятой
