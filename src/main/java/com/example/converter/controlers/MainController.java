@@ -3,11 +3,14 @@ import com.example.converter.models.User;
 import com.example.converter.models.Valute;
 import com.example.converter.repositories.ValuteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -32,9 +35,10 @@ public class MainController {
     private ValuteRepository valuteRepository;
 
     private static List<Valute> listValutes = new ArrayList<>();
+    static float outputCourse = 1;
 
     @GetMapping("/")
-    public String homeGet(@AuthenticationPrincipal User user, Model model) throws ParserConfigurationException, SAXException, IOException {
+    public String homeGet(Model model) throws ParserConfigurationException, SAXException, IOException {
 
         ///////////////////////Вызываем переопоеделенный AdvancedXMLHandler///////////////////////////////////
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -47,7 +51,7 @@ public class MainController {
             //System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
             valuteRepository.save(valute);
         //////////////////////Сохранили в БД основные поля между тэгов из XML//////////////////////////////////////
-        //////////////////////Вытаскиваем Valute ID через ocumentBuilderFactory////////////////////////////////////
+        //////////////////////Вытаскиваем Valute ID из тэга XML через DocumentBuilderFactory////////////////////////////////////
         // Получение фабрики, чтобы после получить билдер документов.
         DocumentBuilderFactory factory1 = DocumentBuilderFactory.newInstance();
         // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
@@ -81,6 +85,7 @@ public class MainController {
             Valute valute = valuteIterator.next();
             list.add(valute.getCharCode());
         }
+        model.addAttribute("outputCourse", outputCourse);
         model.addAttribute("list", list);
         return "home";
     }
@@ -89,11 +94,13 @@ public class MainController {
         List<String> list = new ArrayList<>();
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
+
         while (valuteIterator.hasNext()) {
             Valute valute = valuteIterator.next();
             list.add(valute.getCharCode());
         }
         model.addAttribute("list", list);
+        model.addAttribute("outputCourse", outputCourse);
         return "home";
     }
 
@@ -121,18 +128,25 @@ public class MainController {
             if (valute.getCharCode().equals(valuteOutput)) {
                 outputNominal = valute.getNominal();
                 outputValue = valute.getValue();
-
-
             }
 
         }
-        float outputCourse = (outputValue * inputNominal)/(inputValue* outputNominal);
+        outputCourse = (inputValue * inputNominal)/(outputValue * outputNominal);
         model.addAttribute("outputCourse",outputCourse);
         System.out.println(inputValue);
         System.out.println(outputValue);
         System.out.println(outputCourse);
         return "redirect:/home";
     }
+    /*
+    @PostMapping("/saveBook")
+    public ResponseEntity<Object> addBook(@RequestBody Book book) {
+        bookStore.add(book);
+        ServiceResponse<Book> response = new ServiceResponse<Book>("success", book);
+        return new ResponseEntity<Object>(response, HttpStatus.OK);
+    }*/
+
+    //////////////////////////////////////////////////////////////////////////////////
     private static class AdvancedXMLHandler extends DefaultHandler {
         private String id, numCode, charCode, nominal, name, valuestr, lastElementName;
 
@@ -192,7 +206,7 @@ public class MainController {
                 valuestr = null;
             }
         }
-        //Разбивка значение Value из XML на целые числа и после запятой
+        //Разбивка значение Value из XML на целые числа и числа после запятой
         static public String[] customFormat(String value) {
             Pattern pattern = Pattern.compile(",");
             String[] result = pattern.split(value);

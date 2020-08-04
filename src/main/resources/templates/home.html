@@ -4,53 +4,56 @@
     <title th:text="${title}"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-</head>
-<body>
-<header th:insert="blocks/header :: header"></header>
-<main role="main">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+   <!-- <script src="/postrequest.js"></script> -->
+    <!-- <script src="/getrequest.js"></script> -->
+ </head>
+ <body>
+ <header th:insert="blocks/header :: header"></header>
+ <main role="main">
 
-    <section class="jumbotron text-center">
-        <div class="container">
-            <h1>Money Converter</h1>
+     <section class="jumbotron text-center">
+         <div class="container">
+             <h1>Money Converter</h1>
 
-            <p>
-                <a href="#history" class="btn btn-primary my-2">History of convertations</a>
-            <form th:action="@{/home/convert}" method="post">
-                <div class="form-row">
-                    <div class="col-6">
-                        <select  class="form-control" id="valuteInput" name="valuteInput">
-                            <option th:each="valuteInput : ${list}"
-                                    th:value="${valuteInput}"
-                                    th:text="${valuteInput}">Wireframe</option>
+             <p>
+                 <a href="#history" class="btn btn-primary my-2">History of convertations</a>
+             <form th:action="@{/home/convert}" id="converter" method="post">
+                 <div class="form-row">
+                     <div class="col-6">
+                         <select  class="form-control" id="valuteInput" name="valuteInput">
+                             <option th:each="valuteInput : ${list}"
+                                     th:value="${valuteInput}"
+                                     th:text="${valuteInput}">Wireframe</option>
 
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <select class="form-control" id="valuteOutput" name="valuteOutput" >
-                            <option th:each="valuteOutput : ${list}"
-                                    th:value="${valuteOutput}"
-                                    th:text="${valuteOutput}">Wireframe</option>
-                        </select>
-                    </div>
-                </div>
-                <div><span></span></div>
-                <div class="form-row">
-                    <div class="col-6">
-                        <input type="number" name="inputCount" class="form-control" placeholder="inputCount"></div>
-                    <div class="col-6">
-                        <input type="text" name="outputCourse" class="form-control" th:text="${outputCourse}" >
-                    </div>
-                </div>
+                         </select>
+                     </div>
+                     <div class="col-6">
+                         <select class="form-control" id="valuteOutput" name="valuteOutput" >
+                             <option th:each="valuteOutput : ${list}"
+                                     th:value="${valuteOutput}"
+                                     th:text="${valuteOutput}">Wireframe</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div><span></span></div>
+                 <div class="form-row">
+                     <div class="col-6">
+                         <input type="number" name="inputCount" id="inputCount" class="form-control" placeholder="inputCount"/></div>
+                     <div class="col-6">
+                         <input type="text" name="outputCourse" th:value="${outputCourse}" class="form-control" placeholder="${outputCourse}"/> 
+                     </div>
+                 </div>
 
-                <div><input type="submit" class="btn btn-secondary my-2" value="Convert"/></div>
-            </form>
+                 <div><input type="submit" class="btn btn-secondary my-2" value="Convert"/></div>
+             </form>
 
-            </p>
-        </div>
-    </section>
+             </p>
+         </div>
+     </section>
 
 
-</main>
-<div th:insert="blocks/footer :: footer"></div>
-</body>
-</html>
+ </main>
+ <div th:insert="blocks/footer :: footer"></div>
+ </body>
+ </html>
