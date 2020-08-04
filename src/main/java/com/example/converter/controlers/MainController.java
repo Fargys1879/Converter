@@ -1,6 +1,8 @@
 package com.example.converter.controlers;
+import com.example.converter.models.History;
 import com.example.converter.models.User;
 import com.example.converter.models.Valute;
+import com.example.converter.repositories.HistoryRepository;
 import com.example.converter.repositories.ValuteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,8 @@ import java.util.regex.Pattern;
 public class MainController {
     @Autowired
     private ValuteRepository valuteRepository;
+    @Autowired
+    private HistoryRepository historyRepository;
 
     private static List<Valute> listValutes = new ArrayList<>();
     static float outputCourse = 1;
@@ -136,6 +140,10 @@ public class MainController {
         System.out.println(inputValue);
         System.out.println(outputValue);
         System.out.println(outputCourse);
+        Date date = new Date();
+        System.out.println(date.getDate());
+        History history = new History(valuteInput,valuteOutput,outputCourse,inputCount,date);
+        historyRepository.save(history);
         return "redirect:/home";
     }
     /*
