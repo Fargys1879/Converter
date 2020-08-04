@@ -35,42 +35,8 @@ public class MainController {
 
     @GetMapping("/")
     public String homeGet(@AuthenticationPrincipal User user, Model model) throws ParserConfigurationException, SAXException, IOException {
-        /*
-        // Получение фабрики, чтобы после получить билдер документов.
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-        // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
-        DocumentBuilder builder = factory.newDocumentBuilder();
-
-        // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
-        Document document = builder.parse(new File("F:/new.xml"));
-        // Получение списка всех элементов ValuteID внутри корневого элемента (getDocumentElement возвращает ROOT элемент XML файла).
-        NodeList valuteIDElements = document.getDocumentElement().getElementsByTagName("Valute");
-
-
-        // Перебор всех элементов valuteIDElements
-        for (int i = 0; i < valuteIDElements.getLength(); i++) {
-            Node valute = valuteIDElements.item(i);
-
-
-            // Получение атрибутов каждого элемента
-            NamedNodeMap attributes = valute.getAttributes();
-
-            // Атрибут - тоже Node, потому нам нужно получить значение атрибута с помощью метода getNodeValue()
-            listValutes.add(new Valute(attributes.getNamedItem("ID").getNodeValue()));
-
-        }
-
-        // Вывод информации о каждой валюте
-        Iterator<Valute> iterator = listValutes.listIterator();
-        while (iterator.hasNext()) {
-            Valute valute = iterator.next();
-            System.out.print(valute.getIdValute() + " ");
-           // System.out.print(valute.getCharCode() + " ");
-           // System.out.println(valute.getNumCode() + " ");
-        }
-        */
-        //////////////////////////////////////////////////////////
+        ///////////////////////Вызываем переопоеделенный AdvancedXMLHandler///////////////////////////////////
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
@@ -80,14 +46,34 @@ public class MainController {
         for (Valute valute : listValutes)
             //System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
             valuteRepository.save(valute);
-        ////////////////////////////////////////////////////////////
-
-
-
-        //Valute kro = new Valute("R01770",(short) 752,"SEK",10,"Шведских крон", 83.6039f);
-        //Valute rub = new Valute("R07777",(short) 777,"RUB",1,"Рубль", 1.00f);
-        //valuteRepository.save(kro);
-        //valuteRepository.save(rub);
+        //////////////////////Сохранили в БД основные поля между тэгов из XML//////////////////////////////////////
+        //////////////////////Вытаскиваем Valute ID через ocumentBuilderFactory////////////////////////////////////
+        // Получение фабрики, чтобы после получить билдер документов.
+        DocumentBuilderFactory factory1 = DocumentBuilderFactory.newInstance();
+        // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
+        DocumentBuilder builder = factory1.newDocumentBuilder();
+        // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
+        Document document = builder.parse(new File("F:/new.xml"));
+        // Получение списка всех элементов ValuteID внутри корневого элемента (getDocumentElement возвращает ROOT элемент XML файла).
+        NodeList valuteIDElements = document.getDocumentElement().getElementsByTagName("Valute");
+        // Перебор всех элементов valuteIDElements
+        for (int i = 0; i < valuteIDElements.getLength(); i++) {
+            Node valutenode = valuteIDElements.item(i);
+            // Получение атрибутов каждого элемента
+            NamedNodeMap attributes = valutenode.getAttributes();
+            // Атрибут - тоже Node, потому нам нужно получить значение атрибута с помощью метода getNodeValue()
+            listValutes.get(i).setIdValute(attributes.getNamedItem("ID").getNodeValue());
+        }
+        // Вывод информации о каждой валюте
+        Iterator<Valute> iterator = listValutes.listIterator();
+        while (iterator.hasNext()) {
+            Valute valute = iterator.next();
+            System.out.print(valute.getIdValute() + " ");
+            System.out.print(valute.getCharCode() + " ");
+            System.out.println(valute.getNumCode() + " ");
+            valuteRepository.save(valute);
+        }
+        //////////Создание списка для сокращений валют для выпадающей формы//////////
         List<String> list = new ArrayList<>();
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
@@ -114,35 +100,37 @@ public class MainController {
     @PostMapping("/home/convert")
     public String homePost(@Valid String valuteInput,
                            @Valid String valuteOutput,
-                           @RequestParam int inputValue,
+                           @RequestParam int inputCount,
                            Model model) {
 
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
         int inputNominal = 1;
         int outputNominal = 1;
-        double outputValue = 0;
+        float inputValue = 0;
+        float outputValue = 0;
         while (valuteIterator.hasNext()) {
 
             Valute valute = valuteIterator.next();
 
             if (valute.getCharCode().equals(valuteInput)) {
                 inputNominal = valute.getNominal();
-                outputValue = valute.getValue();
+                inputValue = valute.getValue();
             }
 
             if (valute.getCharCode().equals(valuteOutput)) {
                 outputNominal = valute.getNominal();
+                outputValue = valute.getValue();
 
 
             }
 
         }
-        //outputValue = outputValue * (inputValue * outputNominal)/inputNominal;
-        model.addAttribute("outputValue",outputValue);
-        System.out.println(valuteInput);
-        System.out.println(valuteOutput);
+        float outputCourse = (outputValue * inputNominal)/(inputValue* outputNominal);
+        model.addAttribute("outputCourse",outputCourse);
+        System.out.println(inputValue);
         System.out.println(outputValue);
+        System.out.println(outputCourse);
         return "redirect:/home";
     }
     private static class AdvancedXMLHandler extends DefaultHandler {
@@ -185,6 +173,7 @@ public class MainController {
                     (valuestr != null && !valuestr.isEmpty())&&
                     (name != null && !name.isEmpty())) {
                 String[] values = customFormat(valuestr);
+                //Перевод из строковых частей в float число
                 float value = 0;
                 for (int i = 0; i < values.length; i++) {
                     if (i == 0) {
@@ -193,8 +182,7 @@ public class MainController {
                         float tmp = (  Integer.parseInt(values[i]) * (float) 0.0001);
                         value += tmp ; }
                 }
-                System.out.println(value);
-
+                //System.out.println(value);
                 listValutes.add(new Valute(id, numCode, charCode, Integer.parseInt(nominal), name, value ));
                 id = null;
                 numCode = null;
