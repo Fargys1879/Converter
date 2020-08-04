@@ -49,7 +49,7 @@ public class MainController {
         SAXParser parser = factory.newSAXParser();
 
         AdvancedXMLHandler handler = new AdvancedXMLHandler();
-        parser.parse(new File("F:/new.xml"), handler);
+        parser.parse(new File("new.xml"), handler);
 
         for (Valute valute : listValutes)
             //System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
@@ -61,7 +61,7 @@ public class MainController {
         // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
         DocumentBuilder builder = factory1.newDocumentBuilder();
         // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
-        Document document = builder.parse(new File("F:/new.xml"));
+        Document document = builder.parse(new File("new.xml"));
         // Получение списка всех элементов ValuteID внутри корневого элемента (getDocumentElement возвращает ROOT элемент XML файла).
         NodeList valuteIDElements = document.getDocumentElement().getElementsByTagName("Valute");
         // Перебор всех элементов valuteIDElements
@@ -135,7 +135,7 @@ public class MainController {
             }
 
         }
-        outputCourse = (inputValue * inputNominal)/(outputValue * outputNominal);
+        outputCourse = inputCount * (inputValue * outputNominal)/(outputValue * inputNominal);
         model.addAttribute("outputCourse",outputCourse);
         System.out.println(inputValue);
         System.out.println(outputValue);

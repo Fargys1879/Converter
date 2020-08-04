@@ -27,7 +27,7 @@ public class MoneyconverterApplication {
 		byte[] buffer = input.readAllBytes();
 		String str = new String(buffer);
 		input.close();
-		FileOutputStream output = new FileOutputStream("F:/new.xml");
+		FileOutputStream output = new FileOutputStream("new.xml");
 		byte[] buffer1 = str.getBytes();
 		output.write(buffer1,0, buffer1.length);
 	}
