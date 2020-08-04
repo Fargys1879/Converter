@@ -11,5 +11,5 @@ Database setting:
 spring.datasource.url=jdbc:postgresql://localhost:5432/converter
 /////////////////
 For parsing XML file:
-you must begin http://localhost:8090/
+you must begin here: http://localhost:8090/
 /////////////////
