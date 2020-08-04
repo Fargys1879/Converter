@@ -94,7 +94,7 @@ public class MainController {
         return "home";
     }
     @GetMapping("/home")
-    public String homePost(Model model) {
+    public String homeGET1(Model model) {
         List<String> list = new ArrayList<>();
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
@@ -141,18 +141,17 @@ public class MainController {
         System.out.println(outputValue);
         System.out.println(outputCourse);
         Date date = new Date();
-        System.out.println(date.getDate());
         History history = new History(valuteInput,valuteOutput,outputCourse,inputCount,date);
         historyRepository.save(history);
         return "redirect:/home";
     }
-    /*
-    @PostMapping("/saveBook")
-    public ResponseEntity<Object> addBook(@RequestBody Book book) {
-        bookStore.add(book);
-        ServiceResponse<Book> response = new ServiceResponse<Book>("success", book);
-        return new ResponseEntity<Object>(response, HttpStatus.OK);
-    }*/
+
+    @GetMapping("/history")
+    public String historyGET(Model model) {
+        Iterable<History> histories = historyRepository.findAll();
+        model.addAttribute("histories", histories);
+        return "history";
+    }
 
     //////////////////////////////////////////////////////////////////////////////////
     private static class AdvancedXMLHandler extends DefaultHandler {

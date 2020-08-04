@@ -17,7 +17,7 @@
              <h1>Money Converter</h1>
 
              <p>
-                 <a href="#history" class="btn btn-primary my-2">History of convertations</a>
+                 <a href="/history" class="btn btn-primary my-2">History of convertations</a>
              <form th:action="@{/home/convert}" id="converter" method="post">
                  <div class="form-row">
                      <div class="col-6">
@@ -39,7 +39,7 @@
                  <div><span></span></div>
                  <div class="form-row">
                      <div class="col-6">
-                         <input type="number" name="inputCount" id="inputCount" class="form-control" placeholder="inputCount"/></div>
+                         <input type="number" name="inputCount" id="inputCount" class="form-control" value="1"/></div>
                      <div class="col-6">
                          <input type="text" name="outputCourse" th:value="${outputCourse}" class="form-control" placeholder="${outputCourse}"/>
                      </div>
