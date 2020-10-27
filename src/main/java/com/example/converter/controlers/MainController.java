@@ -1,18 +1,13 @@
 package com.example.converter.controlers;
 import com.example.converter.models.History;
-import com.example.converter.models.User;
 import com.example.converter.models.Valute;
 import com.example.converter.repositories.HistoryRepository;
 import com.example.converter.repositories.ValuteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -21,13 +16,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import javax.validation.Valid;
 import javax.xml.parsers.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.text.*;
 import java.util.regex.Pattern;
 
 
@@ -38,42 +31,40 @@ public class MainController {
     @Autowired
     private HistoryRepository historyRepository;
 
-    private static List<Valute> listValutes = new ArrayList<>();
-    static float outputCourse = 1;
+    private static List<Valute> listValutes = new ArrayList<>(); //Список валют
+    private Set<String> setRender = new HashSet<>(); //Создание Set для сокращений валют для выпадающей формы
+    private static float outputCourse = 1;
 
+    /**
+     * Вызов основной страницы конвертора.
+     * Здесь происходит парсинг XML-файла банка для определения каждой валюты.
+     * @param model
+     * @return
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
     @GetMapping("/")
     public String homeGet(Model model) throws ParserConfigurationException, SAXException, IOException {
 
-        ///////////////////////Вызываем переопоеделенный AdvancedXMLHandler///////////////////////////////////
-        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParserFactory factory = SAXParserFactory.newInstance(); //Вызываем переопоеделенный AdvancedXMLHandler
         SAXParser parser = factory.newSAXParser();
 
         AdvancedXMLHandler handler = new AdvancedXMLHandler();
         parser.parse(new File("new.xml"), handler);
-
         for (Valute valute : listValutes)
-            //System.out.println(String.format("Char Code: %s,", valute.getCharCode() ));
-            valuteRepository.save(valute);
-        //////////////////////Сохранили в БД основные поля между тэгов из XML//////////////////////////////////////
-        //////////////////////Вытаскиваем Valute ID из тэга XML через DocumentBuilderFactory////////////////////////////////////
-        // Получение фабрики, чтобы после получить билдер документов.
-        DocumentBuilderFactory factory1 = DocumentBuilderFactory.newInstance();
-        // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
-        DocumentBuilder builder = factory1.newDocumentBuilder();
-        // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
-        Document document = builder.parse(new File("new.xml"));
-        // Получение списка всех элементов ValuteID внутри корневого элемента (getDocumentElement возвращает ROOT элемент XML файла).
-        NodeList valuteIDElements = document.getDocumentElement().getElementsByTagName("Valute");
-        // Перебор всех элементов valuteIDElements
+            valuteRepository.save(valute); //Сохранили в БД основные поля между тэгов из XML
+        //Вытаскиваем Valute ID из тэга XML через DocumentBuilderFactory
+        DocumentBuilderFactory factory1 = DocumentBuilderFactory.newInstance(); // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
+        DocumentBuilder builder = factory1.newDocumentBuilder(); // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
+        Document document = builder.parse(new File("new.xml")); // Получение списка всех элементов ValuteID внутри корневого элемента (getDocumentElement возвращает ROOT элемент XML файла).
+        NodeList valuteIDElements = document.getDocumentElement().getElementsByTagName("Valute"); // Перебор всех элементов valuteIDElements
         for (int i = 0; i < valuteIDElements.getLength(); i++) {
-            Node valutenode = valuteIDElements.item(i);
-            // Получение атрибутов каждого элемента
-            NamedNodeMap attributes = valutenode.getAttributes();
-            // Атрибут - тоже Node, потому нам нужно получить значение атрибута с помощью метода getNodeValue()
+            Node valutenode = valuteIDElements.item(i); // Получение атрибутов каждого элемента
+            NamedNodeMap attributes = valutenode.getAttributes(); // Атрибут - тоже Node, потому нам нужно получить значение атрибута с помощью метода getNodeValue()
             listValutes.get(i).setIdValute(attributes.getNamedItem("ID").getNodeValue());
         }
-        // Вывод информации о каждой валюте
-        Iterator<Valute> iterator = listValutes.listIterator();
+        Iterator<Valute> iterator = listValutes.listIterator(); // Вывод информации о каждой валюте
         while (iterator.hasNext()) {
             Valute valute = iterator.next();
             System.out.print(valute.getIdValute() + " ");
@@ -81,29 +72,19 @@ public class MainController {
             System.out.println(valute.getNumCode() + " ");
             valuteRepository.save(valute);
         }
-        //////////Создание списка для сокращений валют для выпадающей формы//////////
-        List<String> list = new ArrayList<>();
         Iterable<Valute> valutes = valuteRepository.findAll();
         Iterator<Valute> valuteIterator = valutes.iterator();
         while (valuteIterator.hasNext()) {
             Valute valute = valuteIterator.next();
-            list.add(valute.getCharCode());
+            setRender.add(valute.getCharCode());
         }
         model.addAttribute("outputCourse", outputCourse);
-        model.addAttribute("list", list);
+        model.addAttribute("list", setRender);
         return "home";
     }
     @GetMapping("/home")
     public String homeGET1(Model model) {
-        List<String> list = new ArrayList<>();
-        Iterable<Valute> valutes = valuteRepository.findAll();
-        Iterator<Valute> valuteIterator = valutes.iterator();
-
-        while (valuteIterator.hasNext()) {
-            Valute valute = valuteIterator.next();
-            list.add(valute.getCharCode());
-        }
-        model.addAttribute("list", list);
+        model.addAttribute("list", setRender);
         model.addAttribute("outputCourse", outputCourse);
         return "home";
     }
@@ -121,7 +102,6 @@ public class MainController {
         float inputValue = 0;
         float outputValue = 0;
         while (valuteIterator.hasNext()) {
-
             Valute valute = valuteIterator.next();
 
             if (valute.getCharCode().equals(valuteInput)) {
@@ -143,7 +123,7 @@ public class MainController {
         Date date = new Date();
         History history = new History(valuteInput,valuteOutput,outputCourse,inputCount,date);
         historyRepository.save(history);
-        return "redirect:/home";
+        return "redirect:/history";
     }
 
     @GetMapping("/history")
@@ -153,7 +133,12 @@ public class MainController {
         return "history";
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Переопределение некоторых методов DefaultHandler:
+     * startElement
+     * characters
+     * endElement
+     */
     private static class AdvancedXMLHandler extends DefaultHandler {
         private String id, numCode, charCode, nominal, name, valuestr, lastElementName;
 
@@ -213,7 +198,12 @@ public class MainController {
                 valuestr = null;
             }
         }
-        //Разбивка значение Value из XML на целые числа и числа после запятой
+        
+        /**
+         * Разбивка значение Value из XML на целые числа и числа после запятой
+         * @param value
+         * @return
+         */
         static public String[] customFormat(String value) {
             Pattern pattern = Pattern.compile(",");
             String[] result = pattern.split(value);
@@ -222,3 +212,5 @@ public class MainController {
     }
 
 }
+
+
